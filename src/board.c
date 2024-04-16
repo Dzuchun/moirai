@@ -1,4 +1,6 @@
 #include <board.h>
+#include <util.h>
+
 #include <stdlib.h>
 
 #define PRINT_CELL(out, board, cell)                                           \
@@ -163,11 +165,6 @@ Cell parse_cell(char *s) {
     }
 }
 
-#define _SECTOR_SIZE 3
-#define _SECTOR_AREA _SECTOR_SIZE *_SECTOR_SIZE
-#define _BOARD_SIZE _SECTOR_AREA *_SECTOR_AREA
-#define _CELL_COUNT _BOARD_SIZE + _SECTOR_AREA + 1
-
 #define _FOLD(board, op)                                                       \
     (board)[0] op(board)[1] op(board)[2] op(board)[3] op(board)[4] op(board)   \
         [5] op(board)[6] op(board)[7] op(board)[8] op(board)[9] op(            \
@@ -175,111 +172,81 @@ Cell parse_cell(char *s) {
             [14] op(board)[15] op(board)[16] op(board)[17] op(board)[18] op(   \
                 board)[19] op(board)[20] op(board)[21] op(board)[22]
 
-#define _UNARY_BYTE(dest, board, op, idx) (dest)[idx] = op((board)[idx]);
-#define _UNARY(dest, board, op)                                                \
-    _UNARY_BYTE(dest, board, op, 0);                                           \
-    _UNARY_BYTE(dest, board, op, 1);                                           \
-    _UNARY_BYTE(dest, board, op, 2);                                           \
-    _UNARY_BYTE(dest, board, op, 3);                                           \
-    _UNARY_BYTE(dest, board, op, 4);                                           \
-    _UNARY_BYTE(dest, board, op, 5);                                           \
-    _UNARY_BYTE(dest, board, op, 6);                                           \
-    _UNARY_BYTE(dest, board, op, 7);                                           \
-    _UNARY_BYTE(dest, board, op, 8);                                           \
-    _UNARY_BYTE(dest, board, op, 9);                                           \
-    _UNARY_BYTE(dest, board, op, 10);                                          \
-    _UNARY_BYTE(dest, board, op, 11);                                          \
-    _UNARY_BYTE(dest, board, op, 12);                                          \
-    _UNARY_BYTE(dest, board, op, 13);                                          \
-    _UNARY_BYTE(dest, board, op, 14);                                          \
-    _UNARY_BYTE(dest, board, op, 15);                                          \
-    _UNARY_BYTE(dest, board, op, 16);                                          \
-    _UNARY_BYTE(dest, board, op, 17);                                          \
-    _UNARY_BYTE(dest, board, op, 18);                                          \
-    _UNARY_BYTE(dest, board, op, 19);                                          \
-    _UNARY_BYTE(dest, board, op, 20);                                          \
-    _UNARY_BYTE(dest, board, op, 21);                                          \
-    _UNARY_BYTE(dest, board, op, 22);
-
-#define _PRODUCT_BYTE(dest, board1, board2, op, idx)                           \
-    (dest)[idx] = (board1)[idx] op(board2)[idx];
-
-#define _PRODUCT(dest, board1, board2, op)                                     \
-                                                                               \
-    _PRODUCT_BYTE(dest, board1, board2, op, 0);                                \
-    _PRODUCT_BYTE(dest, board1, board2, op, 1);                                \
-    _PRODUCT_BYTE(dest, board1, board2, op, 2);                                \
-    _PRODUCT_BYTE(dest, board1, board2, op, 3);                                \
-    _PRODUCT_BYTE(dest, board1, board2, op, 4);                                \
-    _PRODUCT_BYTE(dest, board1, board2, op, 5);                                \
-    _PRODUCT_BYTE(dest, board1, board2, op, 6);                                \
-    _PRODUCT_BYTE(dest, board1, board2, op, 7);                                \
-    _PRODUCT_BYTE(dest, board1, board2, op, 8);                                \
-    _PRODUCT_BYTE(dest, board1, board2, op, 9);                                \
-    _PRODUCT_BYTE(dest, board1, board2, op, 10);                               \
-    _PRODUCT_BYTE(dest, board1, board2, op, 11);                               \
-    _PRODUCT_BYTE(dest, board1, board2, op, 12);                               \
-    _PRODUCT_BYTE(dest, board1, board2, op, 13);                               \
-    _PRODUCT_BYTE(dest, board1, board2, op, 14);                               \
-    _PRODUCT_BYTE(dest, board1, board2, op, 15);                               \
-    _PRODUCT_BYTE(dest, board1, board2, op, 16);                               \
-    _PRODUCT_BYTE(dest, board1, board2, op, 17);                               \
-    _PRODUCT_BYTE(dest, board1, board2, op, 18);                               \
-    _PRODUCT_BYTE(dest, board1, board2, op, 19);                               \
-    _PRODUCT_BYTE(dest, board1, board2, op, 20);                               \
-    _PRODUCT_BYTE(dest, board1, board2, op, 21);                               \
-    _PRODUCT_BYTE(dest, board1, board2, op, 22);
-
-#define _ZERO_BOARD                                                            \
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-unsigned char _zero_board[] = _ZERO_BOARD;
-
-#define _ONE_BOARD                                                             \
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-unsigned char _one_board[] = _ONE_BOARD;
-
-Board _cell_mask[_CELL_COUNT];
-void init_boards() {
-    Board b;
-    int j;
-    for (int i = 0; i < _CELL_COUNT; ++i) {
-        b = new_board();
-        j = i >> 2; // index of a byte to write to
-        b[j] = (0b11 << ((i & 0b11) << 1));
-        _cell_mask[i] = b;
+#define _INIT_BOARDS_SIDE(dst, side)                                           \
+    {                                                                          \
+        Board b;                                                               \
+        for (int i = 0; i < CELL_COUNT; ++i) {                                 \
+            dst[i] = new_board();                                              \
+            dst[i][i >> 2] = (side << ((i & 0b11) << 1));                      \
+        }                                                                      \
     }
-}
 
+Board tmp_b;
 CellValue get_cell_value(Board b, Cell cell) {
-    Board *mask = _cell_mask + (int)cell, tmp_b = new_board();
-    char tmp_ch;
-    _PRODUCT(tmp_b, *mask, b, &);
-    tmp_ch = _FOLD(tmp_b, |);
-    while (tmp_ch > 0b11)
-        tmp_ch >>= 2;
-    return (CellValue)tmp_ch;
+    int cell_no = (int)cell;
+    // zero-out tempboard
+    ZERO(tmp_b);
+    // copy current board there
+    PRODUCT(tmp_b, tmp_b, b, |);
+    // zero-out everything else
+    PRODUCT(tmp_b, tmp_b, cell_mask_tot[cell_no], &);
+    // try compating it with various boards
+    if (EQUALS(tmp_b, cell_mask_empty[cell_no]))
+        return Empty;
+    if (EQUALS(tmp_b, cell_mask_tic[cell_no]))
+        return Tic;
+    if (EQUALS(tmp_b, cell_mask_tac[cell_no]))
+        return Tac;
+    return NullValue;
 }
 
 CellValue set_cell_value(Board b, Cell cell, CellValue value) {
-    Board *mask = _cell_mask + (int)cell, tmp_b = new_board();
-    int cell_value = (int)value;
-    _PRODUCT(tmp_b, *mask, tmp_b, &cell_value |);
-    cell_value <<= 2;
-    _PRODUCT(tmp_b, *mask, tmp_b, &cell_value |);
-    cell_value <<= 2;
-    _PRODUCT(tmp_b, *mask, tmp_b, &cell_value |);
-    cell_value <<= 2;
-    _PRODUCT(tmp_b, *mask, tmp_b, &cell_value |);
+    // set tmp_b to desired variant
+    int cell_no = (int)cell;
+    switch (value) {
+    case Tic:
+        tmp_b = cell_mask_tic[cell_no];
+        break;
+    case Tac:
+        tmp_b = cell_mask_tac[cell_no];
+        break;
+    case Empty:
+        ZERO(tmp_b);
+        break;
+    case NullValue:
+        return NullValue;
+    }
     // at this point, tmp_b has correct bits at correct position
     // now, we just need to set b to these bits
     // to do that, we first clear required bits
-    _UNARY(*mask, *mask, ~);  // revert the mask
-    _PRODUCT(b, b, *mask, &); // AND with board, to ensure these bits are 0
-    _PRODUCT(b, b, tmp_b, |); // OR with created board
-    _UNARY(*mask, *mask, ~);  // revert mask back!
+    Board mask = cell_mask_tot[cell_no];
+    UNARY(mask, mask, ~);    // revert the mask
+    PRODUCT(b, b, mask, &);  // AND with board, to ensure these bits are 0
+    PRODUCT(b, b, tmp_b, |); // OR with created board
+    UNARY(mask, mask, ~);    // revert mask back!
     return NullValue;
 }
 
 Board new_board() { return calloc(BOARD_DATA_SIZE, sizeof(unsigned char)); }
 
 void free_board(Board board) { free(board); }
+
+Board cell_mask_tic[CELL_COUNT];
+Board cell_mask_tac[CELL_COUNT];
+Board cell_mask_tot[CELL_COUNT];
+Board cell_mask_empty[CELL_COUNT];
+
+void init_boards() {
+    _INIT_BOARDS_SIDE(cell_mask_tic, Tic);
+    _INIT_BOARDS_SIDE(cell_mask_tac, Tac);
+    _INIT_BOARDS_SIDE(cell_mask_empty, Empty);
+    _INIT_BOARDS_SIDE(cell_mask_tot, 0b11);
+    tmp_b = new_board();
+}
+
+Cell from_sector_num(BoardSector sector, char digi) {
+    if (digi < '1' || digi > '9')
+        return NullCell;
+    int num = digi - '0';
+    return (Cell)(((int)sector) * 9 + num);
+}

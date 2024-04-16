@@ -1,3 +1,4 @@
 # executeable binaries, to need to share them
 ./main
 ./test
+./test_*

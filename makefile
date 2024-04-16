@@ -1,15 +1,19 @@
 
 
 main:
-	clang -I ./include ./src/board.c ./src/main.c -o main
+	clang -I ./include src/*.c src/main/main.c -o main
 
 main-dbg:
-	clang -g -I ./include ./src/board.c ./src/main.c -o main
+	clang -g -I ./include src/*.c src/main/main.c -o main
 
+test:
+	clang -g -I ./include src/*.c src/tests/cell_value.c -o test_cell_value
+	clang -g -I ./include src/*.c src/tests/parse_cell.c -o test_parse_cell
+	./test_cell_value || ./test_parse_cell
 
-force-main: clean main
+re-main: clean main
 
-force-main-dbg: clean main-dbg
+re-main-dbg: clean main-dbg
 
 clean:
-	rm main
+	rm -f main test_cell_value

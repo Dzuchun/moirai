@@ -1,8 +1,10 @@
-/*
-#define GAME_SIZE 3
-#define SECTOR_SIZE (BOARD_SIZE * BOARD_SIZE)
-#define BOARD_SIZE (SECTOR_SIZE * SECTOR_SIZE)
-*/
+#ifndef BOARD_H
+#define BOARD_H 1
+
+#define SECTOR_SIZE 3
+#define SECTOR_AREA (SECTOR_SIZE * SECTOR_SIZE)
+#define BOARD_SIZE (SECTOR_AREA * SECTOR_AREA)
+#define CELL_COUNT (BOARD_SIZE + SECTOR_AREA + 1)
 
 #define EMPTY 0b00     // no symbol
 #define TIC 0b10       // X symbol
@@ -16,8 +18,30 @@ enum cell_value {
 };
 typedef enum cell_value CellValue;
 
-#define BOARD_DATA_SIZE 23
+enum board_sector {
+    A = 0, // sectors A-I refer to parts of the board
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
+    H,
+    I,
+    T, // T sectors refers to Total 3x3 board that is also represented as a
+       // sector
+    NullSector, // represents invalid sector
+};
+typedef enum board_sector BoardSector;
+#define SECTORS_NUM (SECTOR_SIZE * SECTOR_SIZE + 1)
+
+#define BOARD_DATA_SIZE (CELL_COUNT / 8 + (CELL_COUNT % 8 != 0))
 typedef unsigned char *Board;
+
+extern Board cell_mask_tic[CELL_COUNT];
+extern Board cell_mask_tac[CELL_COUNT];
+extern Board cell_mask_tot[CELL_COUNT];
+extern Board cell_mask_empty[CELL_COUNT];
 
 #define BORDER_VERT '|'
 #define BORDER_HOR '-'
@@ -43,7 +67,6 @@ enum cell {
     CELL_SECTOR(A, 0) CELL_SECTOR(B, 1) CELL_SECTOR(C, 2) CELL_SECTOR(D, 3)
         CELL_SECTOR(E, 4) CELL_SECTOR(F, 5) CELL_SECTOR(G, 6) CELL_SECTOR(H, 7)
             CELL_SECTOR(I, 8) CELL_SECTOR(T, 9)
-
 };
 
 typedef enum cell Cell;
@@ -73,3 +96,8 @@ Board new_board();
 
 // Frees memory occupied by a board
 void free_board(Board board);
+
+// Constructs cell from sector and number
+Cell from_sector_num(BoardSector sector, char digi);
+
+#endif

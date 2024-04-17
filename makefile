@@ -11,9 +11,15 @@ test:
 	clang -g -I ./include src/*.c src/tests/parse_cell.c -o test_parse_cell
 	./test_cell_value || ./test_parse_cell
 
+opencl:
+	clang -I ./include/ -D CL_TARGET_OPENCL_VERSION=100 -lOpenCL src/opencl/main.c -o opencl
+
+vec-add:
+	clang -I ./include/ -D CL_TARGET_OPENCL_VERSION=100 -lOpenCL -lm src/opencl/vec-add.c -o opencl-add
+
 re-main: clean main
 
 re-main-dbg: clean main-dbg
 
 clean:
-	rm -f main test_cell_value
+	rm -f main test_cell_value opencl opencl-add

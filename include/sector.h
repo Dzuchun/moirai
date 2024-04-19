@@ -24,4 +24,19 @@ CellValue sector_get_cell(SectorPtr sector, int idx);
 // Represents 8 sector of the board, takes 18 bytes total
 typedef int8_t *Sector8;
 
+enum _sector_ind {
+    SectorA = 1,
+    SectorB = 2,
+    SectorC = 3,
+    SectorD = 4,
+    SectorE = 5,
+    SectorF = 6,
+    SectorG = 7,
+    SectorH = 8,
+    SectorI = 9,
+    SectorT = 0, // total sector, for tracking entire game winner
+    InvalidSector = 10,
+};
+typedef enum _sector_ind SectorInd;
+
 #endif

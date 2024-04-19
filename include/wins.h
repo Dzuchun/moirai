@@ -1,8 +1,8 @@
 #ifndef WINS_H
 #define WINS_H
 
-#include "board.h"
-#include "cell.h"
+#include <board.h>
+#include <cell.h>
 #include <sector.h>
 #include <stdint.h>
 
@@ -14,6 +14,11 @@ enum _win_side {
 };
 // A player that had won in a sector
 typedef enum _win_side WinSide;
+
+// Performs wins initialization.
+//
+// Must be called before any other function
+void init_wins();
 
 // Determines winner of the sector, if there are any
 WinSide get_sector_winner(SectorPtr sector);

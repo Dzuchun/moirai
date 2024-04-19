@@ -2,25 +2,34 @@
 #define BOARD_H
 
 #include <cell.h>
+#include <game.h>
+#include <sector.h>
 #include <stdint.h>
 // Board represents state of the entire game.
 //
 // you can't pass around arrays in C, so most commonly we'll use board pointers
 //
-// Note: 24th byte of the board is unsused, and added here for purely
+// Note: 24th byte of the board is used for storing game state
 typedef int8_t Board[24];
 
 // A pointer to a board
 typedef int8_t *BoardPtr;
 
-// Sets all the cells in the board to empty
-void empty_board(BoardPtr board);
+// Sets board to it's initial state
+void initial_board(BoardPtr board);
 
 // Sets certain cell in the board to specified value
-void set_cell_board(BoardPtr board, int sector, int cell, CellValue value);
+void set_cell_board(BoardPtr board, SectorInd sector, int cell,
+                    CellValue value);
 
 // Gets cell of the board
-CellValue get_cell_board(BoardPtr board, int sector, int cell);
+CellValue get_cell_board(BoardPtr board, SectorInd sector, int cell);
+
+// Gets sector of the board
+SectorPtr get_sector_board(BoardPtr board, SectorInd sector);
+
+// Gets current game state
+GameState *get_game_state(BoardPtr board);
 
 // Compares two boards, returning 0 if they are equal
 int8_t cmp_boards(BoardPtr board1, BoardPtr board2);

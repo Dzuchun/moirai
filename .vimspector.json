@@ -102,7 +102,7 @@
       "adapter": "vscode-cpptools",
       "configuration": {
         "request": "launch",
-        "program": "${workspaceRoot}/main",
+        "program": "${workspaceRoot}/primitive-cli",
         "StopAtEntry": true,
         "MIMode": "gdb",
         "setupCommands": [
@@ -134,7 +134,7 @@
       "configuration": {
         "request": "launch",
         "cwd": "${workspaceFolder}",
-        "program": "${workspaceRoot}/main",
+        "program": "${workspaceRoot}/primitive-cli",
         "StopAtEntry": true,
         "MIMode": "gdb",
         "miDebuggerServerAddress": "${host}:${port}",

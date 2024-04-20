@@ -25,3 +25,8 @@ inline void flip_move_side(GameState *state) { *state ^= 0b10000000; }
 inline SectorInd next_move_sector(GameState *state) {
     return cell_to_sector((*state & 0b01111000) >> 3);
 }
+
+inline void set_next_move_sector(GameState *state, SectorInd sector) {
+    *state &= 0b10000111; // zero-out bits related to next sector
+    *state |= (sector_to_cell(sector) << 3);
+}

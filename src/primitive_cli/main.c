@@ -1,21 +1,19 @@
+#include "player.h"
 #include <board.h>
 #include <cell.h>
 #include <convert.h>
+#include <debug.h>
 #include <game.h>
 #include <io.h>
+#include <player/primitive_io.h>
 #include <sector.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <wins.h>
 
-static void display_state(BoardPtr board);
+extern FILE *playerin, *playerout;
 
-static void get_move(BoardPtr board, SectorInd *sector, int *cell,
-                     int sector_defined);
-
-static void greet_winner(WinSide winner);
+static void greet_winner(BoardPtr board, WinSide winner);
 
 int main() {
     Board b;
@@ -26,20 +24,47 @@ int main() {
     SectorInd sector;
     SectorPtr sector_ptr, total_sector_ptr;
     GameState *state;
+    playerin = stdin;
+    playerout = stdout;
+    FixedSectorBrain fixed_brain = primitive_io_fixed_sector();
+    AnySectorBrain any_brain = primitive_io_any_sector();
     init_wins();
+    // print_debug_wins();
 
     initial_board(bp);
     state = get_game_state(bp); // it's not changing, actually
     total_sector_ptr =
         get_sector_board(bp, SectorT); // yep. it's not changing too
     while (global_winner == Noone) {
-        // show board's current state
-        display_state(bp);
         // get move side
         move_side = get_move_side(state);
         // ask them to move
-        get_move(bp, &sector, &cell,
-                 (sector = next_move_sector(state)) == InvalidSector);
+        int attempts;
+        for (attempts = 3; attempts; --attempts) {
+            sector = next_move_sector(state);
+            if (sector != InvalidSector) {
+                // sector is pre-determined
+                if (!fixed_brain(bp, sector, &cell)) {
+                    global_winner = opposite_side(move_side);
+                    goto end;
+                }
+            } else {
+                // can move to any sector
+                if (!any_brain(bp, &sector, &cell)) {
+                    global_winner = opposite_side(move_side);
+                    goto end;
+                }
+            }
+
+            if (!is_legal(bp, sector, cell, stderr)) {
+                break;
+            }
+        }
+        if (!attempts) {
+            global_winner = opposite_side(move_side);
+            goto end;
+        }
+
         // set board's cell
         set_cell_board(bp, sector, cell, side_to_cell(move_side));
         // change next player to move
@@ -57,81 +82,15 @@ int main() {
         // update global winner
         global_winner = get_sector_winner(total_sector_ptr);
     }
-
-    greet_winner(global_winner);
+end:
+    greet_winner(bp, global_winner);
 }
 
 static char buf[BUFSIZ];
-static void display_state(BoardPtr board) {
+
+void greet_winner(BoardPtr board, WinSide side) {
     char *bp = buf;
     display_board(&bp, board);
-    puts(buf);
-}
-
-static int enforce_legal(BoardPtr board, SectorInd *sector, int *cell) {
-    CellValue cell_value;
-    int verdict = 0;
-    // there are exactly 9 cells
-    if (*cell < 1 || *cell > 9) {
-        fprintf(stderr, "Error: cell %d is not a valid cell\n", *cell);
-        verdict |= 0b0001;
-    }
-    if (*sector == SectorT) {
-        fprintf(stderr, "Error: sector T cannot be influenced directly\n");
-        verdict |= 0b0010;
-    }
-    if (*sector == InvalidSector) {
-        fprintf(stderr, "Error: invalid sector\n");
-        verdict |= 0b0100;
-    }
-    // can't make a move there, if this cell was already occupied
-    cell_value = get_cell_board(board, *sector, *cell);
-    if (!verdict && cell_value != Empty) {
-        fprintf(stderr, "Error: cell (%d-%d) is already occupied\n", *sector,
-                *cell);
-        verdict |= 0b1000;
-    }
-    return verdict;
-}
-
-static int parse_cell_ind(char **src, int *cell) {
-    char this_char = **src;
-    if (this_char < '1' || this_char > '9')
-        return -1;
-    *src += 1;
-    *cell = this_char - '0';
-    return 0;
-}
-
-static void get_move(BoardPtr board, SectorInd *sector, int *cell,
-                     int sector_defined) {
-    char *bp;
-    char input_sector;
-    do {
-        bp = buf;
-        dstcat(bp, "Please, input your move: ");
-        if (sector_defined) {
-            display_sector_ind(&bp, *sector);
-        }
-        puts(buf);
-        fgets(buf, BUFSIZ, stdin);
-        if (feof(stdin)) {
-            display_state(board);
-            printf("Goodbye\n");
-            exit(0); // ok to do, since that's a simple cli for testing
-        }
-        bp = buf;
-        if (!sector_defined) {
-            *sector = InvalidSector;
-            parse_sector_ind(&bp, sector);
-        }
-        *cell = -1;
-        parse_cell_ind(&bp, cell);
-    } while (enforce_legal(board, sector, cell) > 0);
-}
-
-void greet_winner(WinSide side) {
-    char *bp = buf;
     switch (side) {
     case Cross:
     case Circle:

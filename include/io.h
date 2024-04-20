@@ -31,8 +31,10 @@ int parse_sector_ind(char **src, SectorInd *sector);
 
 #define dstcat(dst, text)                                                      \
     {                                                                          \
-        strcat(dst, text);                                                     \
-        dst += sizeof(text) - 1;                                               \
+        char __c, *__t = text;                                                 \
+        for (; (__c = *__t++) != '\0'; *(dst)++ = __c)                         \
+            ;                                                                  \
+        *(dst) = '\0';                                                         \
     }
 
 #endif

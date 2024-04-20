@@ -11,6 +11,7 @@ inline CellValue side_to_cell(MoveSide side) {
     case PlayerCircle:
         return Circle;
     }
+    return -100;
 }
 
 inline CellValue winner_to_cell(WinSide winner) {
@@ -24,6 +25,17 @@ inline CellValue winner_to_cell(WinSide winner) {
     case Draw:
         return Invalid;
     }
+    return -100;
+}
+
+WinSide opposite_side(MoveSide side) {
+    switch (side) {
+    case PlayerCross:
+        return CirclePlayer;
+    case PlayerCircle:
+        return CrossPlayer;
+    }
+    return -100;
 }
 
 inline int cell_value_to_int(CellValue value) { return (int)value; }
@@ -50,8 +62,9 @@ inline int sector_to_cell(SectorInd sector) {
         return 9;
     case SectorT:
     case InvalidSector:
-        return -1;
+        return 10;
     }
+    return -100;
 }
 
 inline SectorInd cell_to_sector(int cell) {
@@ -77,4 +90,5 @@ inline SectorInd cell_to_sector(int cell) {
     default:
         return InvalidSector;
     }
+    return -100;
 }

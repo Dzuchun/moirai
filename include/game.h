@@ -28,4 +28,7 @@ void flip_move_side(GameState *state);
 // If next sector is not determined, returns InvalidSector
 SectorInd next_move_sector(GameState *state);
 
+// Sets sector next player should move in
+void set_next_move_sector(GameState *state, SectorInd sector);
+
 #endif

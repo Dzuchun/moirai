@@ -1,11 +1,11 @@
-#include "board.h"
-#include "sector.h"
+#include <board.h>
 #include <player.h>
+#include <sector.h>
 #include <stdio.h>
 
 inline void dispose(PlayerBrain *player) {
-    if (player->distructor != NULL) {
-        player->distructor(player->state);
+    if ((player->distructor) != NULL) {
+        (player->distructor)(player->state);
     }
 }
 

@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-WinSide drive_new(PlayerBrain player_cross, PlayerBrain player_circle,
+WinSide drive_new(PlayerBrain *player_cross, PlayerBrain *player_circle,
                   FILE *complain_file) {
     Board b;
     BoardPtr board = (int8_t *)&b;
@@ -15,8 +15,8 @@ WinSide drive_new(PlayerBrain player_cross, PlayerBrain player_circle,
     return drive_to_end(board, player_cross, player_circle, complain_file);
 }
 
-WinSide drive_to_end(BoardPtr board, PlayerBrain player_cross,
-                     PlayerBrain player_circle, FILE *complain_file) {
+WinSide drive_to_end(BoardPtr board, PlayerBrain *player_cross,
+                     PlayerBrain *player_circle, FILE *complain_file) {
     WinSide global_winner = Noone;
     WinSide local_winner;
     MoveSide move_side;
@@ -32,10 +32,10 @@ WinSide drive_to_end(BoardPtr board, PlayerBrain player_cross,
         move_side = get_move_side(state);
         switch (move_side) {
         case PlayerCross:
-            active_player = &player_cross;
+            active_player = player_cross;
             break;
         case PlayerCircle:
-            active_player = &player_circle;
+            active_player = player_circle;
             break;
         }
         // ask them to move
@@ -90,7 +90,7 @@ end:
 
 static void game_noop(int i, WinSide side) {}
 
-EvaluationResult evaluate(PlayerBrain player_cross, PlayerBrain player_circle,
+EvaluationResult evaluate(PlayerBrain *player_cross, PlayerBrain *player_circle,
                           int total_games, GameResultCallback callback) {
     EvaluationResult res;
     WinSide winner;
@@ -126,7 +126,7 @@ EvaluationResult evaluate(PlayerBrain player_cross, PlayerBrain player_circle,
 
 static void eval_noop(int i, EvaluationResult evaluation) {}
 
-void evaluate_multiple(PlayerBrain player_cross, int opponents_count,
+void evaluate_multiple(PlayerBrain *player_cross, int opponents_count,
                        int exclude_ind, PlayerBrain *players_circle,
                        EvaluationResult *output, int each_games,
                        GameResultCallback game_callback,
@@ -146,7 +146,7 @@ void evaluate_multiple(PlayerBrain player_cross, int opponents_count,
             result.circle_games =
                 each_games - result.cross_games - result.draw_games;
         } else {
-            result = evaluate(player_cross, players_circle[i], each_games,
+            result = evaluate(player_cross, players_circle + i, each_games,
                               game_callback);
         }
         output[i] = result;

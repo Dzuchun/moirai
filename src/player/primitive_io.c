@@ -42,7 +42,7 @@ static int fixed_sector(BoardPtr board, SectorInd sector, int *cell,
     return 1;
 }
 
-FixedSectorBrain primitive_io_fixed_sector() { return *fixed_sector; }
+FixedSectorBrain primitive_io_fixed_sector() { return &fixed_sector; }
 
 static int any_sector(BoardPtr board, SectorInd *sector, int *cell,
                       void *state) {
@@ -64,7 +64,7 @@ static int any_sector(BoardPtr board, SectorInd *sector, int *cell,
     return 1;
 }
 
-AnySectorBrain primitive_io_any_sector() { return *any_sector; }
+AnySectorBrain primitive_io_any_sector() { return &any_sector; }
 
 PlayerBrain primitive_io_brain() {
     PlayerBrain brain;

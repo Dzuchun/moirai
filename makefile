@@ -1,5 +1,6 @@
 SHELL = bash
 CFLAGS += -I ./include -Wall
+LDFLAGS += -lm
 
 BUILD_DIR := build/
 SRC_DIR := src/
@@ -14,7 +15,7 @@ PRIMITIVE_CLI_OBJ := $(PRIMITIVE_CLI_SRC:$(SRC_DIR)%.c=$(BUILD_DIR)%.o)
 RANDOM_GAME_SRC := $(shell find $(SRC_DIR)random_game -maxdepth 1 -name "*.c") $(SRC_DIR)player/random.c
 RANDOM_GAME_OBJ := $(RANDOM_GAME_SRC:$(SRC_DIR)%.c=$(BUILD_DIR)%.o)
 
-REFEREE_SRC := $(shell find $(SRC_DIR)referee -maxdepth 1 -name "*.c") $(SRC_DIR)player/random.c
+REFEREE_SRC := $(shell find $(SRC_DIR)referee -maxdepth 1 -name "*.c") $(shell find $(SRC_DIR)player -maxdepth 1 -name "*.c") $(shell find $(SRC_DIR)nn -maxdepth 1 -name "*.c")
 REFEREE_OBJ := $(REFEREE_SRC:$(SRC_DIR)%.c=$(BUILD_DIR)%.o)
 
 .PHONY: build-all
@@ -46,6 +47,8 @@ show-config:
 	@ echo "Primitive cli objects:" $(PRIMITIVE_CLI_OBJ)
 	@ echo "Random game sources:" $(RANDOM_GAME_SRC)
 	@ echo "Random game objects:" $(RANDOM_GAME_OBJ)
+	@ echo "Referee sources:" $(REFEREE_SRC)
+	@ echo "Referee game objects:" $(REFEREE_OBJ)
 
 .PHONY: exe-dir
 exe-dir:

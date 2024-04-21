@@ -102,7 +102,7 @@
       "adapter": "vscode-cpptools",
       "configuration": {
         "request": "launch",
-        "program": "${workspaceRoot}/primitive-cli",
+        "program": "${workspaceRoot}/build/exe/referee",
         "StopAtEntry": true,
         "MIMode": "gdb",
         "setupCommands": [

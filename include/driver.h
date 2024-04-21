@@ -9,11 +9,11 @@
 #include "wins.h"
 #include <stdio.h>
 
-WinSide drive_new(PlayerBrain player_cross, PlayerBrain player_circle,
+WinSide drive_new(PlayerBrain *player_cross, PlayerBrain *player_circle,
                   FILE *complain_file);
 
-WinSide drive_to_end(BoardPtr board, PlayerBrain player_cross,
-                     PlayerBrain player_circle, FILE *complain_file);
+WinSide drive_to_end(BoardPtr board, PlayerBrain *player_cross,
+                     PlayerBrain *player_circle, FILE *complain_file);
 
 struct _evaluation_result {
     int total_games;
@@ -26,7 +26,7 @@ typedef struct _evaluation_result EvaluationResult;
 
 typedef void (*GameResultCallback)(int, WinSide);
 
-EvaluationResult evaluate(PlayerBrain player_cross, PlayerBrain player_circle,
+EvaluationResult evaluate(PlayerBrain *player_cross, PlayerBrain *player_circle,
                           int total_games, GameResultCallback callback);
 
 typedef void (*EvaluationResultCallback)(int, EvaluationResult);
@@ -39,7 +39,7 @@ typedef void (*EvaluationResultCallback)(int, EvaluationResult);
 //
 // If you don't want to exclude anyone, just pass -1, or any other index that
 // would never be reached
-void evaluate_multiple(PlayerBrain player_cross, int opponents_count,
+void evaluate_multiple(PlayerBrain *player_cross, int opponents_count,
                        int exclude_ind, PlayerBrain *players_circle,
                        EvaluationResult *output, int each_games,
                        GameResultCallback game_callback,

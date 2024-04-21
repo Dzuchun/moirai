@@ -1,8 +1,8 @@
-#include "board.h"
-#include "cell.h"
-#include "sector.h"
+#include <board.h>
+#include <cell.h>
 #include <player.h>
 #include <player/random.h>
+#include <sector.h>
 #include <stdlib.h>
 #include <wins.h>
 
@@ -37,7 +37,7 @@ static int fixed_sector(BoardPtr board, SectorInd sector, int *cell,
     return 1;
 }
 
-FixedSectorBrain bot_random_fixed_sector() { return *fixed_sector; }
+FixedSectorBrain bot_random_fixed_sector() { return &fixed_sector; }
 
 static int any_sector(BoardPtr board, SectorInd *sector, int *cell,
                       void *state) {
@@ -46,11 +46,13 @@ static int any_sector(BoardPtr board, SectorInd *sector, int *cell,
     return 1;
 }
 
-AnySectorBrain bot_random_any_sector() { return *any_sector; }
+AnySectorBrain bot_random_any_sector() { return &any_sector; }
 
 PlayerBrain bot_random_brain() {
     PlayerBrain brain;
     brain.fixed = bot_random_fixed_sector();
     brain.any = bot_random_any_sector();
+    brain.state = NULL;
+    brain.distructor = NULL;
     return brain;
 }

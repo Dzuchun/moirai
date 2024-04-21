@@ -11,17 +11,21 @@ UNIVERSAL_OBJ := $(UNIVERSAL_SRC:$(SRC_DIR)%.c=$(BUILD_DIR)%.o)
 PRIMITIVE_CLI_SRC := $(shell find $(SRC_DIR)primitive_cli -maxdepth 1 -name "*.c") $(SRC_DIR)player/primitive_io.c
 PRIMITIVE_CLI_OBJ := $(PRIMITIVE_CLI_SRC:$(SRC_DIR)%.c=$(BUILD_DIR)%.o)
 
-primitive-cli: universal-build $(PRIMITIVE_CLI_OBJ) exe-dir
-	$(CC) $(PRIMITIVE_CLI_OBJ) $(UNIVERSAL_OBJ) -o $(BUILD_DIR)exe/$@ $(LDFLAGS)
-
 RANDOM_GAME_SRC := $(shell find $(SRC_DIR)random_game -maxdepth 1 -name "*.c") $(SRC_DIR)player/random.c
 RANDOM_GAME_OBJ := $(RANDOM_GAME_SRC:$(SRC_DIR)%.c=$(BUILD_DIR)%.o)
 
-random-game: universal-build $(RANDOM_GAME_OBJ) exe-dir
-	$(CC) $(RANDOM_GAME_OBJ) $(UNIVERSAL_OBJ) -o $(BUILD_DIR)exe/$@ $(LDFLAGS)
-
 REFEREE_SRC := $(shell find $(SRC_DIR)referee -maxdepth 1 -name "*.c") $(SRC_DIR)player/random.c
 REFEREE_OBJ := $(REFEREE_SRC:$(SRC_DIR)%.c=$(BUILD_DIR)%.o)
+
+.PHONY: build-all
+build-all: primitive-cli random-game referee
+
+primitive-cli: universal-build $(PRIMITIVE_CLI_OBJ) exe-dir
+	$(CC) $(PRIMITIVE_CLI_OBJ) $(UNIVERSAL_OBJ) -o $(BUILD_DIR)exe/$@ $(LDFLAGS)
+
+
+random-game: universal-build $(RANDOM_GAME_OBJ) exe-dir
+	$(CC) $(RANDOM_GAME_OBJ) $(UNIVERSAL_OBJ) -o $(BUILD_DIR)exe/$@ $(LDFLAGS)
 
 referee: universal-build $(REFEREE_OBJ) exe-dir
 	$(CC) $(REFEREE_OBJ) $(UNIVERSAL_OBJ) -o $(BUILD_DIR)exe/$@ $(LDFLAGS)

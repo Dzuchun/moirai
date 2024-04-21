@@ -22,7 +22,8 @@ static int parse_cell_ind(char **src, int *cell) {
     return 0;
 }
 
-static int fixed_sector(BoardPtr board, SectorInd sector, int *cell) {
+static int fixed_sector(BoardPtr board, SectorInd sector, int *cell,
+                        void *state) {
     char *bp = buf;
     display_state(board);
     if (feof(playerin)) {
@@ -43,7 +44,8 @@ static int fixed_sector(BoardPtr board, SectorInd sector, int *cell) {
 
 FixedSectorBrain primitive_io_fixed_sector() { return *fixed_sector; }
 
-static int any_sector(BoardPtr board, SectorInd *sector, int *cell) {
+static int any_sector(BoardPtr board, SectorInd *sector, int *cell,
+                      void *state) {
     char *bp = buf;
     display_state(board);
     if (feof(playerin)) {
@@ -68,5 +70,7 @@ PlayerBrain primitive_io_brain() {
     PlayerBrain brain;
     brain.fixed = primitive_io_fixed_sector();
     brain.any = primitive_io_any_sector();
+    brain.state = NULL;
+    brain.distructor = NULL;
     return brain;
 }

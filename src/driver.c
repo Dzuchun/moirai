@@ -44,13 +44,15 @@ WinSide drive_to_end(BoardPtr board, PlayerBrain player_cross,
             sector = next_move_sector(state);
             if (sector != InvalidSector) {
                 // sector is pre-determined
-                if (!active_player->fixed(board, sector, &cell)) {
+                if (!player_get_fixed_sector(active_player, board, sector,
+                                             &cell)) {
                     global_winner = opposite_side(move_side);
                     goto end;
                 }
             } else {
                 // can move to any sector
-                if (!active_player->any(board, &sector, &cell)) {
+                if (!player_get_any_sector(active_player, board, &sector,
+                                           &cell)) {
                     global_winner = opposite_side(move_side);
                     goto end;
                 }

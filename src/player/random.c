@@ -31,14 +31,16 @@ static void generate_valid_sector(BoardPtr board, SectorInd *sector) {
     }
 }
 
-static int fixed_sector(BoardPtr board, SectorInd sector, int *cell) {
+static int fixed_sector(BoardPtr board, SectorInd sector, int *cell,
+                        void *state) {
     generate_valid_cell(board, sector, cell);
     return 1;
 }
 
 FixedSectorBrain bot_random_fixed_sector() { return *fixed_sector; }
 
-static int any_sector(BoardPtr board, SectorInd *sector, int *cell) {
+static int any_sector(BoardPtr board, SectorInd *sector, int *cell,
+                      void *state) {
     generate_valid_sector(board, sector);
     generate_valid_cell(board, *sector, cell);
     return 1;

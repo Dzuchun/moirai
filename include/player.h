@@ -1,5 +1,5 @@
-#ifndef BOT_H
-#define BOT_H
+#ifndef PLAYER_H
+#define PLAYER_H
 
 #include "board.h"
 #include "sector.h"
@@ -18,5 +18,12 @@ typedef int (*FixedSectorBrain)(BoardPtr, SectorInd, int *);
 //
 // In case 0 was returned, player is considered surrendering
 typedef int (*AnySectorBrain)(BoardPtr, SectorInd *, int *);
+
+struct _player_brain {
+    FixedSectorBrain fixed;
+    AnySectorBrain any;
+};
+// A simple struct containing pointers to player's brain
+typedef struct _player_brain PlayerBrain;
 
 #endif

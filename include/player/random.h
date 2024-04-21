@@ -6,6 +6,8 @@
 
 FixedSectorBrain bot_random_fixed_sector();
 
-AnySectorBrain random_any_sector();
+AnySectorBrain bot_random_any_sector();
+
+PlayerBrain bot_random_brain();
 
 #endif

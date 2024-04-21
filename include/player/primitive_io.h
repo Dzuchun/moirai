@@ -21,4 +21,6 @@ FixedSectorBrain primitive_io_fixed_sector();
 
 AnySectorBrain primitive_io_any_sector();
 
+PlayerBrain primitive_io_brain();
+
 #endif

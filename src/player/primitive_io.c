@@ -63,3 +63,10 @@ static int any_sector(BoardPtr board, SectorInd *sector, int *cell) {
 }
 
 AnySectorBrain primitive_io_any_sector() { return *any_sector; }
+
+PlayerBrain primitive_io_brain() {
+    PlayerBrain brain;
+    brain.fixed = primitive_io_fixed_sector();
+    brain.any = primitive_io_any_sector();
+    return brain;
+}

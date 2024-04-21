@@ -85,3 +85,69 @@ WinSide drive_to_end(BoardPtr board, PlayerBrain player_cross,
 end:
     return global_winner;
 }
+
+static void game_noop(int i, WinSide side) {}
+
+EvaluationResult evaluate(PlayerBrain player_cross, PlayerBrain player_circle,
+                          int total_games, GameResultCallback callback) {
+    EvaluationResult res;
+    WinSide winner;
+    res.total_games = total_games;
+    res.cross_games = 0;
+    res.circle_games = 0;
+    res.draw_games = 0;
+    if (callback == NULL)
+        callback = game_noop;
+
+    for (int i = 0; i < total_games; ++i) {
+        // play a game
+        winner = drive_new(player_cross, player_circle, NULL);
+        // increment a counter
+        switch (winner) {
+        case CrossPlayer:
+            ++res.cross_games;
+            break;
+        case CirclePlayer:
+            ++res.circle_games;
+            break;
+        case Draw:
+            ++res.draw_games;
+            break;
+        case Noone:
+            break;
+        }
+        // callback
+        callback(i, winner);
+    }
+    return res;
+}
+
+static void eval_noop(int i, EvaluationResult evaluation) {}
+
+void evaluate_multiple(PlayerBrain player_cross, int opponents_count,
+                       int exclude_ind, PlayerBrain *players_circle,
+                       EvaluationResult *output, int each_games,
+                       GameResultCallback game_callback,
+                       EvaluationResultCallback callback) {
+    EvaluationResult result;
+    if (callback == NULL)
+        callback = eval_noop;
+    for (int i = 0; i < opponents_count; ++i) {
+        if (i == exclude_ind) {
+            // make it 50%/45%/5%
+            result.total_games = each_games;
+            // that's 50%
+            result.cross_games = each_games / 2;
+            // that's 5%
+            result.draw_games = result.cross_games / 10;
+            // that's the rest (about 45%)
+            result.circle_games =
+                each_games - result.cross_games - result.draw_games;
+        } else {
+            result = evaluate(player_cross, players_circle[i], each_games,
+                              game_callback);
+        }
+        output[i] = result;
+        callback(i, result);
+    }
+}

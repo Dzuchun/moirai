@@ -20,6 +20,12 @@ RANDOM_GAME_OBJ := $(RANDOM_GAME_SRC:$(SRC_DIR)%.c=$(BUILD_DIR)%.o)
 random-game: universal-build $(RANDOM_GAME_OBJ) exe-dir
 	$(CC) $(RANDOM_GAME_OBJ) $(UNIVERSAL_OBJ) -o $(BUILD_DIR)exe/$@ $(LDFLAGS)
 
+REFEREE_SRC := $(shell find $(SRC_DIR)referee -maxdepth 1 -name "*.c") $(SRC_DIR)player/random.c
+REFEREE_OBJ := $(REFEREE_SRC:$(SRC_DIR)%.c=$(BUILD_DIR)%.o)
+
+referee: universal-build $(REFEREE_OBJ) exe-dir
+	$(CC) $(REFEREE_OBJ) $(UNIVERSAL_OBJ) -o $(BUILD_DIR)exe/$@ $(LDFLAGS)
+
 .PHONY: universal-build
 universal-build: $(UNIVERSAL_OBJ)
 	@ echo "General build suceeded"
